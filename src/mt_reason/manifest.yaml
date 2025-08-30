@@ -1,0 +1,8 @@
+files:
+  - name: iso_639_3_basic_csv
+    url: https://www.dropbox.com/scl/fi/qbq8uuloe4y9ce257cvbp/iso-639-3-basic.csv?rlkey=sxyv0vt6mb7dmu1uvrav6huxg&st=5j2edhzh&dl=1
+    description: "ISO 639-3 base csv code files"
+settings:
+  download_dir: ./downloaded_files
+  retries: 3
+  timeout_seconds: 30
