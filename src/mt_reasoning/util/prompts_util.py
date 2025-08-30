@@ -7,8 +7,8 @@ import yaml
 
 # Load ISO 639 DataFrame
 def load_iso639_df() -> pd.DataFrame:
-    resource = files("mt_reason.source") / "iso-639-3-basic.csv"
-    resource_manifest = files("mt_reason") / "manifest.yaml"
+    resource = files("mt_reasoning.source") / "iso-639-3-basic.csv"
+    resource_manifest = files("mt_reasoning") / "manifest.yaml"
     local_path = str(resource)
     
     # Check if the file exists locally

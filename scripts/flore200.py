@@ -7,7 +7,7 @@ import requests
 from openai import OpenAI
 import importlib
 from datetime import datetime
-from mt_reason.util import prompts_util, clients_util
+from mt_reasoning.util import prompts_util, clients_util 
 
 importlib.reload(prompts_util)
 importlib.reload(clients_util)
