@@ -21,7 +21,7 @@ def generate_with_calling_vllm(server_url, model_name, prompt, api_key=None):
             ],
             # "temperature": 0.1, # Not Supported
             # "top_p": 0.9,
-            "max_completion_tokens": 32768,
+            "max_completion_tokens": 25000,
             # "frequency_penalty": 0.0,
             # "n": 1,
         }
@@ -37,7 +37,7 @@ def generate_with_calling_vllm(server_url, model_name, prompt, api_key=None):
             ],
             "temperature": 0.1,
             "top_p": 0.9,
-            "max_tokens": 32768,
+            "max_tokens": 25000,
             "frequency_penalty": 0.0,
             "n": 1,
         }

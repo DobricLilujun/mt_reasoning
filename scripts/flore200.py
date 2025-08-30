@@ -8,6 +8,7 @@ from openai import OpenAI
 import importlib
 from datetime import datetime
 from mt_reasoning.util import prompts_util, clients_util 
+from tqdm import tqdm
 
 importlib.reload(prompts_util)
 importlib.reload(clients_util)
@@ -36,8 +37,10 @@ all_langs_code = df['iso_639_3'].dropna().unique()
 df_eng = df[df['iso_639_3'] == eng_code]
 
 for tgt_code in tgt_codes:
+    print(f"Translating {eng_code} <-> {tgt_code}")
+
     ### English To LRLs
-    out_path = f"{output_path_folder}/results_{eng_code}-{tgt_code}_{ts}.jsonl"
+    out_path = f"{output_path_folder}/results_{eng_code}-{tgt_code}.jsonl"
     if os.path.exists(out_path):
         try:
             df_prev = pd.read_json(out_path, lines=True)
@@ -47,10 +50,9 @@ for tgt_code in tgt_codes:
     else:
         idx_prev = 0
 
-    for idx, row in df_eng.iterrows():
+    for idx, row in tqdm(df_eng.iterrows(), total=df_eng.shape[0], desc="Eng rows", unit="row"):
         if idx < idx_prev:
             continue
-
         update_row = row.copy()
         translation_prompt = prompts_util.translate_prompt(row['text'], eng_code, tgt_code)
         reasoning_started_at = datetime.now()
@@ -77,14 +79,20 @@ for tgt_code in tgt_codes:
     else:
         idx_prev = 0
 
-    for idx, row in df_eng.iterrows():
+    for idx, row in tqdm(df_eng.iterrows(), total=df_eng.shape[0], desc="Eng rows", unit="row"):
         if idx < idx_prev:
             continue
-
         update_row = row.copy()
         translation_prompt = prompts_util.translate_prompt(row['text'], tgt_code, eng_code)
-        translation = clients_util.generate_with_calling_vllm(openai_api_base, model_path, translation_prompt)
+        reasoning_started_at = datetime.now()
+        translation, translation_reasoning_path = clients_util.generate_with_calling_vllm(openai_api_base, model_path, translation_prompt, api_key=openai_api_key)
+        reasoning_ended_at = datetime.now()
+        reasoning_elapsed_sec = (reasoning_ended_at - reasoning_started_at).total_seconds()
         update_row['translation'] = translation
+        update_row['translation_reasoning_path'] = str(translation_reasoning_path)
+        update_row['reasoning_started_at'] = reasoning_started_at.isoformat()
+        update_row['reasoning_ended_at'] = reasoning_ended_at.isoformat()
+        update_row['reasoning_elapsed_sec'] = reasoning_elapsed_sec
         updated_df = pd.DataFrame([update_row])
         mode = "w" if idx_prev == 0 else "a"
         updated_df.to_json(out_path, orient="records", lines=True, mode=mode)
