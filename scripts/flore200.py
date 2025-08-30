@@ -24,6 +24,7 @@ openai_api_base = "http://0.0.0.0:8000/v1/chat/completions"
 openai_api_base = "https://api.openai.com/v1/chat/completions"
 # model_path = "/home/snt/projects_lujun/base_models/Qwen3-4B-Thinking-2507"
 model_path = "/home/snt/projects_lujun/base_models/DeepSeek-R1-Distill-Llama-8B"
+model_name = model_path.split("/")[-1]
 # model_path = "o3-mini-2025-01-31"
 output_path_folder = "data/outputs/flore200_eval"
 iso639_df = prompts_util.load_iso639_df()
@@ -40,7 +41,7 @@ for tgt_code in tgt_codes:
     print(f"Translating {eng_code} <-> {tgt_code}")
 
     ### English To LRLs
-    out_path = f"{output_path_folder}/results_{eng_code}-{tgt_code}.jsonl"
+    out_path = f"{output_path_folder}/results_{eng_code}_{tgt_code}_{model_name}.jsonl"
     if os.path.exists(out_path):
         try:
             df_prev = pd.read_json(out_path, lines=True)
@@ -69,7 +70,7 @@ for tgt_code in tgt_codes:
         updated_df.to_json(out_path, orient="records", lines=True, mode=mode)
 
     ### LRLs To English
-    out_path = f"{output_path_folder}/results_{tgt_code}-{eng_code}.jsonl"
+    out_path = f"{output_path_folder}/results_{tgt_code}_{eng_code}_{model_name}.jsonl"
     if os.path.exists(out_path):
         try:
             df_prev = pd.read_json(out_path, lines=True)
