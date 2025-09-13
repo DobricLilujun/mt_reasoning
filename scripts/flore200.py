@@ -19,11 +19,12 @@ ts = datetime.now().strftime("%m%d%H%M")
 #### Setttings
 
 df = pd.read_json("data/source/flore200.jsonl", lines=True)
-openai_api_key = "sk-pro"
-openai_api_base = "http://0.0.0.0:8000/v1/chat/completions"
+openai_api_key = "sk-"
+# openai_api_base = "http://0.0.0.0:8000/v1/chat/completions"
 openai_api_base = "https://api.openai.com/v1/chat/completions"
 # model_path = "/home/snt/projects_lujun/base_models/Qwen3-4B-Thinking-2507"
-model_path = "/home/snt/projects_lujun/base_models/DeepSeek-R1-Distill-Llama-8B"
+# model_path = "/home/snt/projects_lujun/base_models/DeepSeek-R1-Distill-Llama-8B"
+model_path = "o3-mini-2025-01-31"
 model_name = model_path.split("/")[-1]
 # model_path = "o3-mini-2025-01-31"
 output_path_folder = "data/outputs/flore200_eval"
@@ -35,7 +36,8 @@ tgt_codes = [ "asm", "ltz", "mlt", "jav", "lin", "hin", "ger", "ara", "may", "sw
 client = OpenAI(api_key=openai_api_key, base_url=openai_api_base)
 eng_code = "eng"
 all_langs_code = df['iso_639_3'].dropna().unique()
-df_eng = df[df['iso_639_3'] == eng_code]
+df_eng = df[df['iso_639_3'] == eng_code].head(300)
+
 
 for tgt_code in tgt_codes:
     print(f"Translating {eng_code} <-> {tgt_code}")
@@ -51,8 +53,11 @@ for tgt_code in tgt_codes:
     else:
         idx_prev = 0
 
-    for idx, row in tqdm(df_eng.iterrows(), total=df_eng.shape[0], desc="Eng rows", unit="row"):
+    idx = 0
+    print (idx_prev)
+    for _, row in tqdm(df_eng.iterrows(), total=df_eng.shape[0], desc="Eng rows", unit="row"):
         if idx < idx_prev:
+            idx += 1
             continue
         update_row = row.copy()
         translation_prompt = prompts_util.translate_prompt(row['text'], eng_code, tgt_code)
@@ -66,9 +71,11 @@ for tgt_code in tgt_codes:
         update_row['reasoning_ended_at'] = reasoning_ended_at.isoformat()
         update_row['reasoning_elapsed_sec'] = reasoning_elapsed_sec
         updated_df = pd.DataFrame([update_row])
-        mode = "w" if idx_prev == 0 else "a"
+        mode = "w" if idx == 0 else "a"
         updated_df.to_json(out_path, orient="records", lines=True, mode=mode)
+        idx += 1
 
+    
     ### LRLs To English
     out_path = f"{output_path_folder}/results_{tgt_code}_{eng_code}_{model_name}.jsonl"
     if os.path.exists(out_path):
@@ -79,9 +86,11 @@ for tgt_code in tgt_codes:
             idx_prev = 0
     else:
         idx_prev = 0
-
-    for idx, row in tqdm(df_eng.iterrows(), total=df_eng.shape[0], desc="Eng rows", unit="row"):
+    print (idx_prev)
+    idx = 0
+    for _, row in tqdm(df_eng.iterrows(), total=df_eng.shape[0], desc="Eng rows", unit="row"):
         if idx < idx_prev:
+            idx +=1
             continue
         update_row = row.copy()
         translation_prompt = prompts_util.translate_prompt(row['text'], tgt_code, eng_code)
@@ -95,5 +104,6 @@ for tgt_code in tgt_codes:
         update_row['reasoning_ended_at'] = reasoning_ended_at.isoformat()
         update_row['reasoning_elapsed_sec'] = reasoning_elapsed_sec
         updated_df = pd.DataFrame([update_row])
-        mode = "w" if idx_prev == 0 else "a"
+        mode = "w" if idx == 0 else "a"
         updated_df.to_json(out_path, orient="records", lines=True, mode=mode)
+        idx += 1
