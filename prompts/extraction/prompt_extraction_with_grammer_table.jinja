@@ -1,15 +1,17 @@
 You are an expert Luxembourgish–English translator and linguist.
-You will receive a passage from a Luxembourgish grammar book, which may cover Morphology, Syntax, or Irregular Forms.
+
+You will be provided with one specific row from a grammar table that contains information about Luxembourgish grammar, vocabulary, or usage, along with surrounding context from the table. The table may contain errors or unclear formatting.
+
 Your task is to:
 1. Identify and extract all core grammar points from the passage.
 2. For each grammar point, return examples that appear in the passage.
-3. If no examples exist in the passage, create at least three English–Luxembourgish sentence pairs illustrating this rule.
+3. If no examples appear in the passage, create at least three English–Luxembourgish sentence pairs illustrating this rule.
 4. If the passage lacks clear grammar points, provide standard examples related to the topic.
 5. Example pairs must follow this format: (English sentence. Luxembourgish sentence).
 6. For each grammar point, provide:
-- grammar_X: a short, concise description of the rule (with X replaced by the correct number).
-- description: a detailed explanation of this grammar rule with clarifications.
-- examples: a list of bilingual examples (from the passage or created).
+   - grammar_X: a short, concise description of the rule (with X replaced by the correct number).
+   - description: a detailed explanation of this grammar rule with clarifications.
+   - examples: a list of bilingual examples (from the passage or created).
 
 Strict length and quality requirements for examples:
 - Each example pair must contain two full sentences: one in English and one in Luxembourgish.
@@ -54,5 +56,11 @@ The output must be strictly returned in valid JSON format, with no extra comment
   ]
 }
 
-Here is the passage:
-"""{{ text }}"""
+Here is the complete HTML grammar table:
+"""{{ GRAMMAR_TABLE }}"""
+
+Here is the surrounding context:
+"""{{ SURROUNDING_CONTEXT }}"""
+
+Here is the specific row to analyze:
+"""{{ SPECIFIC_ROW }}"""

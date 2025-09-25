@@ -102,7 +102,7 @@ def generate_with_calling_openai_api(
                 response_format={"type": "json_object"}, 
             )
             content = resp.choices[0].message.content
-            return json.loads(content)
+            return json.loads(content), input_prompt
         except Exception as e:
             sleep_s = initial_backoff * (2 ** attempt) + 0.1 * (attempt)
             time.sleep(sleep_s)
