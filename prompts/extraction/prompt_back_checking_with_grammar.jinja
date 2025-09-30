@@ -1,0 +1,29 @@
+You are a Luxembourgish-English translation expert and linguist.
+
+You will be given:
+- A Luxembourgish sentence
+- A corresponding English sentence
+- A description of a grammatical feature or phenomenon
+
+Your tasks are:
+1. Evaluate whether the English–Luxembourgish sentence pair corresponds correctly. Give a score from 0–10 (use integers only).
+2. Determine whether the Luxembourgish sentence reflects or contains the specified grammatical feature (answer: Yes or No).
+3. Based on the same English sentence, construct a Luxembourgish sentence that uses this grammatical feature incorrectly or incompletely, and briefly explain the error.
+
+Return the result strictly in valid JSON format and nothing else:
+
+{
+  "translation_score": <integer 0–10>,
+  "grammar_reflection": "Yes" or "No",
+  "false_sentence": "<incorrect Luxembourgish sentence>",
+  "false_reason": "<brief explanation of the error>"
+}
+
+Here is the Luxembourgish sentence:
+"""{{ LUXEMBOURGISH_SENTENCE }}"""
+
+Here is the English sentence:
+"""{{ ENGLISH_SENTENCE }}"""
+
+Here is the grammar description:
+"""{{ GRAMMAR_DESCRIPTION }}"""
