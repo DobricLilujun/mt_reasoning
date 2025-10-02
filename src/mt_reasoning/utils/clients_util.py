@@ -78,7 +78,7 @@ def generate_with_calling_openai_api(
                         input_prompt_template_path: str,
                         input_text_dict: Dict[str, str] = None,
                         model: str = "gpt-5-mini",
-                        temperature: float = 1.0,
+                        temperature: float = 0.1,
                         max_retries: int = 5,
                         initial_backoff: float = 1.0) -> Dict[str, Any]:
     
@@ -92,17 +92,68 @@ def generate_with_calling_openai_api(
 
     for attempt in range(max_retries):
         try:
+            messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": input_prompt},
+            ]
             resp = client.chat.completions.create(
                 model=model,
                 temperature=temperature,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": input_prompt},
-                ],
+                messages=messages,
                 response_format={"type": "json_object"}, 
             )
             content = resp.choices[0].message.content
-            return json.loads(content), input_prompt
+            return json.loads(content), messages
+        except Exception as e:
+            sleep_s = initial_backoff * (2 ** attempt) + 0.1 * (attempt)
+            time.sleep(sleep_s)
+            if attempt == max_retries - 1:
+                raise
+
+
+## Calling API with extra body params for vLLM server
+def generate_with_calling_api(
+        client,
+        system_prompt_template_path: str,
+        input_prompt_template_path: str,
+        input_text_dict: Dict[str, str] = None,
+        model: str = "Qwen/Qwen2.5-1.5B-Instruct",
+        temperature: float = 1.0,
+        max_retries: int = 5,
+        initial_backoff: float = 1.0,
+        vllm_extra: Dict[str, Any] = None 
+    ) -> Dict[str, Any]:
+
+    if not input_text_dict or not isinstance(input_text_dict, dict):
+        raise ValueError("input_text_dict must be a non-empty dict with at least one text-like field.")
+
+    ctx = dict(input_text_dict)
+
+    system_prompt = render_prompt(system_prompt_template_path)
+    input_prompt = render_prompt(input_prompt_template_path, **ctx)
+
+    extra_body = vllm_extra or {}
+
+    for attempt in range(max_retries):
+        try:
+            if "gemma" in model.lower():
+                messages = [
+                    {"role": "user", "content": input_prompt},
+                ]
+            else:
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": input_prompt},
+                ]
+            resp = client.chat.completions.create(
+                model=model,
+                temperature=temperature,
+                messages=messages,
+                response_format={"type": "json_object"},
+                extra_body=extra_body 
+            )
+            content = resp.choices[0].message.content
+            return json.loads(content), messages
         except Exception as e:
             sleep_s = initial_backoff * (2 ** attempt) + 0.1 * (attempt)
             time.sleep(sleep_s)

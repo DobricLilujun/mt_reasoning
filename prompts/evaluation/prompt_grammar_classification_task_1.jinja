@@ -1,0 +1,25 @@
+You are an expert in Luxembourgish-English translation and grammar analysis.
+
+You will be given:
+- A Luxembourgish sentence
+- Its corresponding English translation
+- A list of possible grammar descriptions, labeled A, B, C ... Z
+
+Your task:
+- Carefully examine the Luxembourgish sentence and its English equivalent
+- Identify which grammar description best matches the structure or expression used in the Luxembourgish sentence
+- Return only the corresponding choice letter of the selected grammar description in valid JSON format, with no explanation or additional text
+
+Output format:
+{
+  "grammar_selected": "<LETTER>"
+}
+
+Here is the Luxembourgish sentence:
+{{ LUXEMBOURGISH_SENTENCE }}
+
+Here is the English sentence:
+{{ ENGLISH_SENTENCE }}
+
+Here is the list of grammar descriptions:
+{{ LIST_GRAMMAR_DESCRIPTION }}

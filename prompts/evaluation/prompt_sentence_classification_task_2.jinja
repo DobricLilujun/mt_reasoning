@@ -1,0 +1,22 @@
+You are an expert in Luxembourgish-English grammar analysis.
+
+You will be given:
+- A grammar knowledge point
+- A list of Luxembourgish sentences with their English translations
+
+Your task:
+- Carefully examine each Luxembourgish sentence.
+- Identify which sentences demonstrate the given grammar knowledge point.
+- Return only the matching sentence in valid JSON format, with no explanation or additional text.
+
+Output format:
+{
+  "sentence_selected": "<LETTER>"
+}
+
+
+Here is the grammar knowledge point to look for:
+{{ GRAMMAR_POINT }}
+
+Here is the list of sentences:
+{{ LIST_OF_SENTENCES }}
