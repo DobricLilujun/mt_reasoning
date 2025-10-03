@@ -150,10 +150,13 @@ def generate_with_calling_api(
                 temperature=temperature,
                 messages=messages,
                 response_format={"type": "json_object"},
-                extra_body=extra_body 
+                logprobs=extra_body.get("logprobs", None),
+                top_logprobs=extra_body.get("top_logprobs", None),
+
             )
             content = resp.choices[0].message.content
-            return json.loads(content), messages
+            log_prob = resp.choices[0].logprobs
+            return json.loads(content), messages, log_prob
         except Exception as e:
             sleep_s = initial_backoff * (2 ** attempt) + 0.1 * (attempt)
             time.sleep(sleep_s)
