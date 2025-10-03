@@ -1,0 +1,22 @@
+You are an expert in Luxembourgish-English grammar analysis.
+
+You will be given:
+- A paragraph in Luxembourgish with its English translation
+- A list of grammar knowledge points (descriptions) , labeled A, B, C ... Z
+
+Your task:
+- Carefully examine the Luxembourgish paragraph.
+- Identify {{ NUM_GRAMMARS }} grammar points from the provided list are demonstrated in this paragraph.
+- Return only the matching grammar points in valid JSON format, with no explanation or additional text.
+
+Output format:
+{
+  "grammar_selected": [ "<GRAMMAR_POINT_LETTER_1>", "<GRAMMAR_POINT_LETTER_2>", ... ]
+}
+
+
+Here is the paragraph to analyze:
+{{ PARAGRAPH }}
+
+Here is the list of grammar descriptions:
+{{ GRAMMAR_LIST }}
