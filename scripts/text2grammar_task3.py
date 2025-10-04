@@ -66,13 +66,34 @@ vllm_client = OpenAI(base_url=server_url)
 
 letters = list(string.ascii_uppercase)  # ['A', 'B', 'C', ..., 'Z']
 vllm_extra={"logprobs": True, "top_logprobs": grammar_size}
+
 time_now = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-output_dir = "/home/snt/projects_lujun/mt_reasoning/data/extraction_pdf/datasets"
-output_path = os.path.join(output_dir, f"task3_{time_now}_{grammar_size}_{sentence_list_size}_{test_length}_{model_vllm.split('/')[-1]}.jsonl")
+
+project_dir = os.environ.get("PROJECT_DIR", None)
+output_dir = os.path.join(project_dir, "data/extraction_pdf/datasets")
+
+import glob
+pattern = os.path.join(
+    output_dir,
+    f"task3_*_{grammar_size}_{sentence_list_size}_{test_length}_{model_vllm.split('/')[-1]}.jsonl"
+)
+
+matches = glob.glob(pattern)
+if matches:
+    matches.sort(key=os.path.getmtime, reverse=True)
+    output_path = matches[0]
+    print(f"Resuming from existing file: {output_path}")
+    finished_lines = len(pd.read_json(output_path, lines=True))
+    print(f"Already processed {finished_lines} lines.")
+else:
+    finished_lines = 0
+    output_path = os.path.join(output_dir,  f"task3_{time_now}_{grammar_size}_{sentence_list_size}_{test_length}_{model_vllm.split('/')[-1]}.jsonl")
 
 
 
 for idx in tqdm(range(test_length), desc="Processing"):
+    if idx < finished_lines:
+        continue  # Skip already processed rows
 
     ## Randomly Sample a Row from the Source DataFrame
     rows = (

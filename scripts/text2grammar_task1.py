@@ -59,11 +59,31 @@ letters = list(string.ascii_uppercase)  # ['A', 'B', 'C', ..., 'Z']
 
 vllm_extra={"logprobs": True, "top_logprobs": grammar_list_size}
 time_now = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-output_dir = "/home/snt/projects_lujun/mt_reasoning/data/extraction_pdf/datasets"
-output_path = os.path.join(output_dir, f"task1_{time_now}_{grammar_list_size}_{model_vllm.split('/')[-1]}.jsonl")
+
+project_dir = os.environ.get("PROJECT_DIR", None)
+output_dir = os.path.join(project_dir, "data/extraction_pdf/datasets")
+
+import glob
+pattern = os.path.join(
+    output_dir,
+    f"task1_*_{grammar_list_size}_{model_vllm.split('/')[-1]}.jsonl"
+)
+
+matches = glob.glob(pattern)
+if matches:
+    matches.sort(key=os.path.getmtime, reverse=True)
+    output_path = matches[0]
+    print(f"Resuming from existing file: {output_path}")
+    finished_lines = len(pd.read_json(output_path, lines=True))
+    print(f"Already processed {finished_lines} lines.")
+else:
+    finished_lines = 0
+    output_path = os.path.join(output_dir, f"task1_{time_now}_{grammar_list_size}_{model_vllm.split('/')[-1]}.jsonl")
 
 
 for index, row in tqdm(source_df.iterrows(), total=len(source_df)):
+    if index < finished_lines:
+        continue  # Skip already processed rows
     grammar_desc = row['grammar_points_descriptions']
     opposite_source_grammar_list = source_df[source_df['grammar_points_descriptions'] != grammar_desc]['grammar_points_descriptions'].drop_duplicates().sample(grammar_list_size-1, random_state=42).tolist()
     full_list = [grammar_desc] + opposite_source_grammar_list

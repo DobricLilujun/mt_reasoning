@@ -59,14 +59,35 @@ vllm_client = OpenAI(base_url=server_url)
 letters = list(string.ascii_uppercase)  # ['A', 'B', 'C', ..., 'Z']
 vllm_extra={"logprobs": True, "top_logprobs": sentence_list_size}
 time_now = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-output_dir = "/home/snt/projects_lujun/mt_reasoning/data/extraction_pdf/datasets"
-output_path = os.path.join(output_dir, f"task2_{time_now}_{sentence_list_size}_{model_vllm.split('/')[-1]}.jsonl")
+project_dir = os.environ.get("PROJECT_DIR", None)
+output_dir = os.path.join(project_dir, "data/extraction_pdf/datasets")
+
+
+import glob
+pattern = os.path.join(
+    output_dir,
+    f"task2_*_{sentence_list_size}_{model_vllm.split('/')[-1]}.jsonl"
+)
+
+matches = glob.glob(pattern)
+if matches:
+    matches.sort(key=os.path.getmtime, reverse=True)
+    output_path = matches[0]
+    print(f"Resuming from existing file: {output_path}")
+    finished_lines = len(pd.read_json(output_path, lines=True))
+    print(f"Already processed {finished_lines} lines.")
+else:
+    finished_lines = 0
+    output_path = os.path.join(output_dir, f"task2_{time_now}_{sentence_list_size}_{model_vllm.split('/')[-1]}.jsonl")
+
 
 grammar_df = source_df.drop_duplicates(subset=['grammar_points_descriptions'])
 
 print (f"Unique grammar descriptions: {len(grammar_df)}")
 
 for index, row in tqdm(grammar_df.iterrows(), total=len(grammar_df)):
+    if index < finished_lines:
+        continue  # Skip already processed rows
     grammar_desc = row['grammar_points_descriptions']
     sentence_lux = row['luxembourg']
     opposite_source_sentence_list = grammar_df[grammar_df['grammar_points_descriptions'] != grammar_desc]['luxembourg'].sample(sentence_list_size-1).tolist()

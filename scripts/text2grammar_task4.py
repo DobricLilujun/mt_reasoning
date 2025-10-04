@@ -65,10 +65,30 @@ letters = list(string.ascii_uppercase)  # ['A', 'B', 'C', ..., 'Z']
 
 vllm_extra={"logprobs": True, "top_logprobs": 2}
 time_now = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-output_dir = "/home/snt/projects_lujun/mt_reasoning/data/extraction_pdf/datasets"
-output_path = os.path.join(output_dir, f"task4_{time_now}_{model_vllm.split('/')[-1]}.jsonl")
+project_dir = os.environ.get("PROJECT_DIR", None)
+output_dir = os.path.join(project_dir, "data/extraction_pdf/datasets")
+
+import glob
+pattern = os.path.join(
+    output_dir,
+    f"task4_*_{model_vllm.split('/')[-1]}.jsonl"
+)
+
+matches = glob.glob(pattern)
+if matches:
+    matches.sort(key=os.path.getmtime, reverse=True)
+    output_path = matches[0]
+    print(f"Resuming from existing file: {output_path}")
+    finished_lines = len(pd.read_json(output_path, lines=True))
+    print(f"Already processed {finished_lines} lines.")
+else:
+    finished_lines = 0
+    output_path = os.path.join(output_dir, f"task4_{time_now}_{model_vllm.split('/')[-1]}.jsonl")
+
 
 for index, row in tqdm(source_df.iterrows(), total=len(source_df)):
+    if index < finished_lines:
+        continue  # Skip already processed rows
     grammar_desc = row['grammar_points_descriptions']
     lux_sentence_correct = row['luxembourg']
     lux_sentence_adverserial = row['adverserial']
