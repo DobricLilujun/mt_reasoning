@@ -58,12 +58,16 @@ IP = os.environ.get("VLLM_IP", "0.0.0.0")
 # PORT = os.environ.get("VLLM_PORT", "1997")
 server_url = f"http://{IP}:{PORT}/v1"
 print (server_url)
-vllm_client = OpenAI(base_url=server_url)
 
+if "gpt" in model_vllm:
+    vllm_client = OpenAI(api_key=OPENAI_API_KEY)
+    vllm_extra={"logprobs": False, "top_logprobs": 2}
+else:
+    vllm_client = OpenAI(base_url=server_url)
+    vllm_extra={"logprobs": True, "top_logprobs": 2}
 ## Experimental Settings
 letters = list(string.ascii_uppercase)  # ['A', 'B', 'C', ..., 'Z']
 
-vllm_extra={"logprobs": True, "top_logprobs": 2}
 time_now = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 project_dir = os.environ.get("PROJECT_DIR", None)
 output_dir = os.path.join(project_dir, "data/extraction_pdf/datasets")

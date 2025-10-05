@@ -145,15 +145,26 @@ def generate_with_calling_api(
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": input_prompt},
                 ]
-            resp = client.chat.completions.create(
-                model=model,
-                temperature=temperature,
-                messages=messages,
-                response_format={"type": "json_object"},
-                logprobs=extra_body.get("logprobs", None),
-                top_logprobs=extra_body.get("top_logprobs", None),
+            if "gpt" in model.lower():
+                # No extra body for gpt models
+                resp = client.chat.completions.create(
+                    model=model,
+                    temperature=temperature,
+                    messages=messages,
+                    response_format={"type": "json_object"},
+                    logprobs=extra_body.get("logprobs", None),
+                )
+            else:
+                # No extra body for gpt models
+                resp = client.chat.completions.create(
+                    model=model,
+                    temperature=temperature,
+                    messages=messages,
+                    response_format={"type": "json_object"},
+                    logprobs=extra_body.get("logprobs", None),
+                    top_logprobs=extra_body.get("top_logprobs", None),
 
-            )
+                )
             content = resp.choices[0].message.content
             log_prob = resp.choices[0].logprobs
             return json.loads(content), messages, log_prob
