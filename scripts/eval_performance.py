@@ -101,7 +101,6 @@ chrf_metric = sacrebleu.CHRF(word_order=3)
 for index, row in tqdm(source_df.iterrows(), total=len(source_df)):
     if index < finished_lines:
         continue  # Skip already processed rows
-
     lux_sentence = row['text_ltz']
     eng_sentence = row['text_eng']
 
