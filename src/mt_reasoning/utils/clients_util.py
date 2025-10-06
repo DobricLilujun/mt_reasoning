@@ -167,7 +167,11 @@ def generate_with_calling_api(
                 )
             content = resp.choices[0].message.content
             log_prob = resp.choices[0].logprobs
-            data = json.loads(content)
+            try:
+                data = json.loads(content)
+            except json.JSONDecodeError as e:
+                raise json.JSONDecodeError(f"Json Decode Error: {e} \n Content: {content}", content, 0)
+            
             return data, messages, log_prob
         except (json.JSONDecodeError, Exception) as e:
             if isinstance(e, json.JSONDecodeError):
