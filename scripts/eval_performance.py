@@ -1,27 +1,24 @@
 import pandas as pd 
 import os
-import pickle
 from datetime import datetime, timezone
 from openai import OpenAI  # pip install openai
 import nltk
-from nltk.tokenize import sent_tokenize
 import os
-from pprint import pprint
 import pandas as pd
 import sacrebleu 
 from mt_reasoning.utils import prompts_util, clients_util, eval_util
 from tqdm import tqdm
 import importlib
 from dotenv import load_dotenv
-import random
 import string
 import argparse
-from comet import download_model, load_from_checkpoint
-from typing import List, Dict
-from huggingface_hub import snapshot_download, login
 
+from huggingface_hub import  login
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# Trainer(enable_checkpointing=False, logger=False)
+# logging.getLogger("lightning.pytorch").setLevel(logging.ERROR)
 load_dotenv()
-
 
 
 parser = argparse.ArgumentParser()
@@ -54,6 +51,7 @@ login(token=HUGGINGFACE_TOKEN)
 ## VllM settings
 # model_vllm = os.environ.get("MODEL_VLLM", "/home/snt/projects_lujun/base_models/gemma-2-2b-it")
 IP = os.environ.get("VLLM_IP", "0.0.0.0")
+
 # PORT = os.environ.get("VLLM_PORT", "1997")
 server_url = f"http://{IP}:{PORT}/v1"
 print (server_url)

@@ -167,9 +167,12 @@ def generate_with_calling_api(
                 )
             content = resp.choices[0].message.content
             log_prob = resp.choices[0].logprobs
-            return json.loads(content), messages, log_prob
-        except Exception as e:
-            sleep_s = initial_backoff * (2 ** attempt) + 0.1 * (attempt)
+            data = json.loads(content)
+            return data, messages, log_prob
+        except (json.JSONDecodeError, Exception) as e:
+            if isinstance(e, json.JSONDecodeError):
+                print(f"Json Decode Error: {e}")
+            sleep_s = initial_backoff * (2 ** attempt) + 0.1 * attempt
             time.sleep(sleep_s)
             if attempt == max_retries - 1:
                 raise
