@@ -171,6 +171,9 @@ def generate_with_calling_api(
                 data = json.loads(content)
             except json.JSONDecodeError as e:
                 raise json.JSONDecodeError()
+
+            if not data or all(v in [None, "", [], {}] for v in data.values()):
+                data = None
             
             return data, messages, log_prob
         except (json.JSONDecodeError, Exception) as e:
@@ -179,4 +182,4 @@ def generate_with_calling_api(
             sleep_s = initial_backoff * (2 ** attempt) + 0.1 * attempt
             time.sleep(sleep_s)
             if attempt == max_retries - 1:
-                raise
+                return None, None, None
