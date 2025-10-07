@@ -170,7 +170,7 @@ def generate_with_calling_api(
             try:
                 data = json.loads(content)
             except json.JSONDecodeError as e:
-                raise json.JSONDecodeError(f"Json Decode Error: {e} \n Content: {content}", content, 0)
+                raise json.JSONDecodeError()
             
             return data, messages, log_prob
         except (json.JSONDecodeError, Exception) as e:
