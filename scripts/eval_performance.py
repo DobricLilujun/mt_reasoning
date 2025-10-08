@@ -117,8 +117,10 @@ for index, row in tqdm(source_df.iterrows(), total=len(source_df)):
     
     row["input_prompt"] = input_prompt
     row["task_translation_dict"] = output_dict
-    translated_text = output_dict.get("translation", "").strip()
-
+    if isinstance(output_dict, dict):
+        translated_text = str(output_dict.get("translation", "") or "").strip()
+    else:
+        translated_text = ""
     # Cometkiwi
     comet_score = eval_util.evaluate_with_comet_ref(model=comet_model, src=[eng_sentence], mt=[translated_text], ref=[lux_sentence])["system_score"]
     comet_score_small = eval_util.evaluate_with_comet_ref(model=comet_model_small, src=[eng_sentence], mt=[translated_text], ref=[lux_sentence])["system_score"]
