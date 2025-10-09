@@ -147,12 +147,13 @@ def generate_with_calling_api(
                 ]
             if "gpt" in model.lower():
                 # No extra body for gpt models
+                print("Calling GPT model")
                 resp = client.chat.completions.create(
                     model=model,
                     temperature=temperature,
                     messages=messages,
-                    response_format={"type": "json_object"},
-                    logprobs=extra_body.get("logprobs", None),
+                    # response_format={"type": "json_object"},
+                    # logprobs=extra_body.get("logprobs", None),
                 )
             else:
                 # No extra body for gpt models

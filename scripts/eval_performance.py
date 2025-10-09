@@ -45,6 +45,7 @@ nltk.download('punkt')
 
 ## Open AI Settings
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+print(f"Using OpenAI Key: {OPENAI_API_KEY[:4]}****{OPENAI_API_KEY[-4:]}")
 TEMPERATURE = float(os.environ.get("OPENAI_TEMPERATURE", "0.5"))
 HUGGINGFACE_TOKEN= os.environ.get("HUGGINGFACE_TOKEN", "")
 login(token=HUGGINGFACE_TOKEN)
@@ -120,10 +121,15 @@ for index, row in tqdm(source_df.iterrows(), total=len(source_df)):
     if isinstance(output_dict, dict):
         translated_text = str(output_dict.get("translation", "") or "").strip()
     else:
-        translated_text = ""
-    # Cometkiwi
-    comet_score = eval_util.evaluate_with_comet_ref(model=comet_model, src=[eng_sentence], mt=[translated_text], ref=[lux_sentence])["system_score"]
-    comet_score_small = eval_util.evaluate_with_comet_ref(model=comet_model_small, src=[eng_sentence], mt=[translated_text], ref=[lux_sentence])["system_score"]
+        translated_text = None
+    
+    if not translated_text:
+        # Cometkiwi
+        comet_score = eval_util.evaluate_with_comet_ref(model=comet_model, src=[eng_sentence], mt=[translated_text], ref=[lux_sentence])["system_score"]
+        comet_score_small = eval_util.evaluate_with_comet_ref(model=comet_model_small, src=[eng_sentence], mt=[translated_text], ref=[lux_sentence])["system_score"]
+    else:
+        comet_score = -1.0
+        comet_score_small = -1.0
 
     # spbleu score
     spbleu_score = sacrebleu.corpus_bleu([translated_text], [[lux_sentence]], tokenize="flores200").score
