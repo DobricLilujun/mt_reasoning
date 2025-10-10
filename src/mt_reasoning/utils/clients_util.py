@@ -152,8 +152,8 @@ def generate_with_calling_api(
                     model=model,
                     temperature=temperature,
                     messages=messages,
-                    # response_format={"type": "json_object"},
-                    # logprobs=extra_body.get("logprobs", None),
+                    response_format={"type": "json_object"},
+                    logprobs=extra_body.get("logprobs", None),
                 )
             else:
                 # No extra body for gpt models
@@ -184,3 +184,47 @@ def generate_with_calling_api(
             time.sleep(sleep_s)
             if attempt == max_retries - 1:
                 return None, None, None
+            
+
+def generate_with_transformer_model(
+        client,  
+        system_prompt_template_path: str,
+        input_prompt_template_path: str,
+        input_text_dict: Dict[str, str] = None,
+        model: str = "gpt2",
+        temperature: float = 0.1,
+        max_retries: int = 5,
+        initial_backoff: float = 1.0) -> Dict[str, Any]:
+    
+    if not input_text_dict or not isinstance(input_text_dict, dict):
+        raise ValueError("input_text_dict must be a non-empty dict with at least one text-like field.")
+    
+    ctx = dict(input_text_dict)
+
+    system_prompt = render_prompt(system_prompt_template_path)
+    input_prompt = render_prompt(input_prompt_template_path, **ctx)
+
+    if "gemma" in model.lower():
+        messages = [
+            {"role": "user", "content": input_prompt},
+        ]
+    else:
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": input_prompt},
+        ]
+
+    for attempt in range(max_retries):
+        try:
+            resp = client(
+                messages,
+                temperature=temperature,
+                max_new_tokens=512
+            )
+            content = resp[0]["generated_text"]
+            return json.loads(content), [{"role": "system", "content": system_prompt}, {"role": "user", "content": input_prompt}]
+        except Exception as e:
+            sleep_s = initial_backoff * (2 ** attempt) + 0.1 * attempt
+            time.sleep(sleep_s)
+            if attempt == max_retries - 1:
+                raise
