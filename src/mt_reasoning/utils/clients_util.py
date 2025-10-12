@@ -167,6 +167,11 @@ def generate_with_calling_api(
 
                 )
             content = resp.choices[0].message.content
+            try:
+                reasoning_content = resp.choices[0].message.reasoning_content
+                messages.append({"role": "assistant", "reasoning_content": reasoning_content})  # Save it to messages if neccessary
+            except:
+                reasoning_content = None
             log_prob = resp.choices[0].logprobs
             try:
                 data = json.loads(content)
