@@ -62,9 +62,12 @@ print (server_url)
 if "gpt" in model_vllm:
     vllm_client = OpenAI(api_key=OPENAI_API_KEY)
     vllm_extra={"logprobs": False, "top_logprobs": 2}
+elif "thinking" in model_vllm.lower():
+    vllm_client = OpenAI(base_url=server_url)
+    vllm_extra={"logprobs": False, "chat_template_kwargs": {"thinking": True}}
 else:
     vllm_client = OpenAI(base_url=server_url)
-    vllm_extra={"logprobs": True, "top_logprobs": 2}
+    vllm_extra={"logprobs": False}
 ## Experimental Settings
 letters = list(string.ascii_uppercase)  # ['A', 'B', 'C', ..., 'Z']
 
